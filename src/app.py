@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, People, Planet
 #from models import Person
 
 app = Flask(__name__)
@@ -36,23 +36,48 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/user', methods=['GET'])
-def handle_hello():
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+#ENDPOINTS USER
+@app.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
 
-    return jsonify(response_body), 200
-
+    return jsonify([user.serialize() for user in users]), 200
 
 
+@app.route('/users/<int:user_id>', methods=['GET'])
+def get_user_id(user_id):
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({'msg': 'User not found'}), 404
+    return jsonify(user.serialize()), 200
 
 
+@app.route('/users', methods=['POST'])
+def create_user():
+    data = request.json
 
+    new_user = User(
+        email = data['email'],
+        password = data['password'],
+        is_active = True
+    )
 
+    db.session.add(new_user)
+    db.session.commit()
 
+    return jsonify(new_user.serialize()), 201
 
+@app.route('users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({'msg': 'User not found'}), 404
+    
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify({'msg': 'User deleted'}, 200)
 
 
 # this only runs if `$ python src/app.py` is executed
