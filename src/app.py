@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planet
+from models import db, User
 #from models import Person
 
 app = Flask(__name__)
@@ -68,15 +68,13 @@ def create_user():
 
     return jsonify(new_user.serialize()), 201
 
-@app.route('users/<int:user_id>', methods=['DELETE'])
+@app.route('/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     user = User.query.get(user_id)
     if user is None:
         return jsonify({'msg': 'User not found'}), 404
-    
     db.session.delete(user)
     db.session.commit()
-
     return jsonify({'msg': 'User deleted'}, 200)
 
 
