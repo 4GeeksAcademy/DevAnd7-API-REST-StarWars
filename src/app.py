@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, People, Planet
 #from models import Person
 
 app = Flask(__name__)
@@ -42,40 +42,40 @@ def sitemap():
 def get_users():
     users = User.query.all()
 
-    return jsonify([user.serialize() for user in users]), 200
+    return jsonify([u.serialize() for u in users]), 200
 
 
-@app.route('/users/<int:user_id>', methods=['GET'])
-def get_user_id(user_id):
-    user = User.query.get(user_id)
-    if user is None:
-        return jsonify({'msg': 'User not found'}), 404
-    return jsonify(user.serialize()), 200
+
+#ENDPOINTS PEOPLE:
+@app.route('/people', methods=['GET'])
+def get_people():
+    people = People.query.all()
+
+    return jsonify([p.serialize() for p in people]),200
+
+@app.route('/people/<int:people_id>', methods=['GET'])
+def get_people_id(people_id):
+    person = People.query.get(people_id)
+    if not person:
+        return jsonify({'msg':'People not found'}), 404
+    return jsonify(person.serialize()), 200
 
 
-@app.route('/users', methods=['POST'])
-def create_user():
-    data = request.json
+#ENDPOINTS PLANETS:
+@app.route('/planets', methods=['GET'])
+def get_planets():
+    planet = Planet.query.all()
 
-    new_user = User(
-        email = data['email'],
-        password = data['password'],
-        is_active = True
-    )
+    return jsonify([p.serialize() for p in planet]),200
 
-    db.session.add(new_user)
-    db.session.commit()
+@app.route('/planets/<int:planet_id>', methods=['GET'])
+def get_planet_id(planet_id):
+    planet = Planet.query.get(planet_id)
+    if not planet:
+        return jsonify({'msg':'Planet not found'}), 404
+    return jsonify(planet.serialize()), 200
 
-    return jsonify(new_user.serialize()), 201
 
-@app.route('/users/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    user = User.query.get(user_id)
-    if user is None:
-        return jsonify({'msg': 'User not found'}), 404
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify({'msg': 'User deleted'}, 200)
 
 
 # this only runs if `$ python src/app.py` is executed

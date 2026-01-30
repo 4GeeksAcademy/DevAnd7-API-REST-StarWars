@@ -6,7 +6,7 @@ db = SQLAlchemy()
 
 
 class User(db.Model):
-    __tablename__ = "users"
+    __tablename__ = "user"
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(
         String(120), unique=True, nullable=False)
@@ -59,10 +59,8 @@ class Favorite(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"))
-    planet_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("planet.id"), nullable=True)
-    people_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("people.id"), nullable=True)
+    planet_id: Mapped[int] = mapped_column(Integer, ForeignKey("planet.id"), nullable=True)
+    people_id: Mapped[int] = mapped_column(Integer, ForeignKey("people.id"), nullable=True)
     
     def serialize(self):
         return{
